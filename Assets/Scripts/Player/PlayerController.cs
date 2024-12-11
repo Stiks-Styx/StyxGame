@@ -8,9 +8,11 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float rotationSpeed = 360f;
     [SerializeField] private float jumpHeight = 2f;
     [SerializeField] private float gravity = -9.81f;
+    private GameObject mainMenuUI;
 
     private Vector3 velocity;
     private bool isCursorLocked = true;
+    private bool isMenuOpen = true;
 
     private InputSystem_Actions inputActions;
     private Vector3 _input;
@@ -21,6 +23,7 @@ public class PlayerController : NetworkBehaviour
     {
         inputActions = new InputSystem_Actions();
         characterController = GetComponent<CharacterController>();
+        mainMenuUI = GameObject.Find("MainMenu");
     }
 
     private void OnEnable()
@@ -86,9 +89,21 @@ public class PlayerController : NetworkBehaviour
         if (inputActions.Player.Esc.triggered)
         {
             isCursorLocked = !isCursorLocked;
+            isMenuOpen = !isMenuOpen;
         }
+        mainMenuUI.SetActive(isMenuOpen);
 
         Cursor.lockState = isCursorLocked ? CursorLockMode.Locked : CursorLockMode.Confined;
         Cursor.visible = !isCursorLocked;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (IsOwner)
+        {
+            Debug.Log($"Player spawned! Scene: {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
+        }
     }
 }
